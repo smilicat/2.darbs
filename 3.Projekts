@@ -2,23 +2,29 @@
 #include <string>
 #include <conio.h>
 #include <typeinfo>
+#include <stdio.h>
 
 using namespace std;
 /*
- 2. praktiskais darbs "Mantošana"
+ 3. praktiskais darbs "Virtualas funkcijas"
  Autors   : Kirils Volobujevs
  Grupa    : P2-4
  Variants : 8 "Mebeles"
  Uzdevums :
-Izmainīt otro praktisko darbu:
-		   + 1. Bāzes klases rēķinošo metodi pārveidot par tīri virtuālo.
-			 2. Papildināt programmu ar vēl vienu atvasināto klasi atbilstoši individuālajam uzdevumam.
-				Pievienot tai savu atribūtu un savas metodes.
-  		  +- 3. Realizēt bāzes klases rēķinošo metodi atvasinātajās klasēs (vēlams - ar atšķirīgu realizāciju).
-			 4. Main funkcijā izveidot masīvu no norādēm uz bāzes klases elementiem, ar to palīdzību izveidot atvasināto
-				klašu objektus pēc lietotāja izvēles (lietotājs izvēlās gan objekta tipu, gan konstruktora variantu).
-			 5. Izmantojot dinamisko tipu pārveidošanu un bāzes klases norādi izsaukt visas programmas metodes.
-*/
+
+ Izmainīt otro praktisko darbu:
+ 1. Bāzes klases rēķinošo metodi pārveidot par tīri virtuālo.
+ 2. Papildināt programmu ar vēl vienu atvasināto klasi atbilstoši
+ individuālajam uzdevumam. Pievienot tai savu atribūtu un savas metodes.
+ 3. Realizēt bāzes klases rēķinošo metodi atvasinātajās klasēs
+ (vēlams - ar atšķirīgu realizāciju).
+ 3.1. Pievienot katrā atvasinātajā klasē tai unikālo metodi.
+ 4. Main funkcijā izveidot masīvu no norādēm uz bāzes klases elementiem,
+ ar to palīdzību izveidot atvasināto klašu objektus pēc lietotāja izvēles
+ (lietotājs izvēlās gan objekta tipu, gan konstruktora variantu).
+ 5. Izmantojot dinamisko tipu pārveidošanu un bāzes klases norādi izsaukt visas programmas metodes
+ (ar dynamic cast palīdzību izsaukt arī unikālās atvasināto klašu metodes).
+ */
 
 class Furniture {
 private:
@@ -112,10 +118,11 @@ void Furniture::setFurniturePrice(float price) {
 }
 
 // Kredita aprekina metode
+/*
 float Furniture::credit(float furniture_price, int month) {
 	return this->furniture_price / month;
 }
-
+ */
 // printOrder
 void Furniture::printOrder() {
 	cout << "Main Preces Mebele nr." << furniture_count << endl <<
@@ -141,6 +148,15 @@ public:
 	void setDate(string date);
 	// Print Order
 	void printOrder();
+	void combData();
+
+	SoftFur() {
+		this->softFur_serial = "54.123.31";
+		this->softFur_date = "12.05.2013";
+		this->furniture_name = "Spilvens";
+		this->furniture_price = 74;
+
+	}
 
 	// Atvasinatas Class Constructor
 	SoftFur(string serial, string date, string name, string color, float price)
@@ -149,7 +165,6 @@ public:
 		this->furniture_price = price;
 		this->softFur_serial = serial;
 		this->softFur_date = date;
-		this->furniture_count++;
 		cout << endl;
 	}
 
@@ -178,6 +193,11 @@ float SoftFur::credit(float furniture_price, int month) {
 	return this->furniture_price * month;
 }
 
+void SoftFur::combData() {
+	cout << "Svarigaka informacija par Mikstajam mebelem ir : " << endl <<
+		this->getSerial() << " " << this->getDate() << endl;
+}
+
 // Mikstas mebeles  : Print order
 void SoftFur::printOrder() {
 	cout << "Mebele numur." << this->furniture_count << endl;
@@ -186,18 +206,19 @@ void SoftFur::printOrder() {
 	cout << "Summa: " << this->furniture_price << " EUR" << endl;
 	cout << "Pasutijums Nr. " << this->getSerial() << endl;
 	cout << "Datums: " << this->getDate() << endl;
+
 }
 
 class Other : public Furniture {
 protected:
-	float other_weight;
+	int other_weight;
 	float other_size;
 
 public:
 	// Non-Overloaded Constructor
-	Other(float weight, float size) {
-		other_weight = weight;
-		other_size = size;
+	Other() {
+		other_weight = 5;
+		other_size = 12.1;
 
 	}
 
@@ -207,16 +228,15 @@ public:
 		this->furniture_price = price;
 		this->other_weight = weight;
 		this->other_size = size;
-		this->furniture_count++;
 
-}
+	}
 
 	// Other Weight
 	float getOtherWeight() {
 		return this->other_weight;
 	}
 
-	void setOtherName(float weight) {
+	void setOtherWeight(float weight) {
 		this->other_weight = weight;
 	}
 
@@ -230,12 +250,16 @@ public:
 	}
 
 	// Credit
-	float credit(float size, float weight) {
+	float credit(float size, int weight) {
 		return size*weight;
 	}
 	// PrintOrder
 	void printOrder();
+	float calcDate(int,float);
 };
+float Other::calcDate(int weight,float size){
+	return weight*size -150;
+}
 
 void Other::printOrder() {
 	cout << "Mebele numur." << this->furniture_count << endl;
@@ -243,6 +267,8 @@ void Other::printOrder() {
 	cout << "Summa: " << this->furniture_price << " EUR" << endl;
 	cout << "Mebeles izmers " << this->getOtherSize() << " CM^2 " << endl;
 	cout << "Mebeles svars: " << this->getOtherWeight() << " KG " << endl;
+	cout << "Mebeles cena " << this->credit(other_weight,other_size)<<endl;
+	cout << "Aprekinu plans " << this->calcDate(other_weight,other_size)<<endl;
 }
 
 /*
@@ -266,58 +292,173 @@ string inputNonEmptyString() {
 
 int main() {
 	clrscr();
-	int month;
+	int month, value, type, i, size, weight;
+	const int count = 4;
 	float price;
-	string name, color;
+	string name, color, date, serial;
+	char c;
 	/*
 	 [int] Month - Variable for funtion Credit
-	 [float] Price - Variable for furniture_price
-	 [string] Name - Variable for furniture_name
-	 Color - Variable for furniture_color
+	 value -
+	 type -
+	 i - For cikla inkriments
+	 size - Class Other variable for Other_size
+	 weight - Class Other variable for Other_weight
+	 [const] count - Number or objects in loop
+	 [float] price - Variable for furniture_price
+	 [string] name - Variable for furniture_name
+	 color - Variable for furniture_color
+	 date - Class SoftFur vairable for SoftFur_date
+	 serail - Class SoftFur variable for SoftFur_serial
 	 */
 
-	cout << "Ievadiet preces nosaukumu : ";
-	name = inputNonEmptyString();
-	cout << "Ievadiet preces krasu : ";
-	color = inputNonEmptyString();
-	cout << "Ievadiet preces cenu : ";
+	/* --- Start of interaction --- */
 
-	cin >> price;
-	while (price <= 0) {
-
-		if (price <= 0) {
-			cout << "Cena nevar but 0 vai mazaka" << endl;
-			cout << "Ievadiet jauno preces cenu : ";
-			cin >> price;
-		}
-	}
-	cout << "Ievadiet menesu skaitu : ";
+	// Variable input for credit(float,int)
+	// [INT] varibale test
+	cout << "Number of months : " << endl;
 	cin >> month;
 	while (month <= 0) {
-
 		if (month <= 0) {
-			cout << "month nevar but 0 vai mazaka" << endl;
-			cout << "Ievadiet menesu skaits : ";
-
+			cout << "Invalid month input. Please repeat input : "
+				<< endl;
 			cin >> month;
 		}
 	}
-	clrscr();
-	// Bazes metode
-	Furniture *t3 = new Furniture(price,month);
-	t3->printOrder();
-	cout << "Preces var nopirkte : " << t3->credit(price, month) << endl;
 
-	// Constructor to give serial and date
-	SoftFur *t2 = new SoftFur("123987", "31.12.2013", "Stool", "Yellow", 512);
-	t2->printOrder();
-	// Atvasinata metode
-	cout << "Preces var nopirkte : " << t2->credit(price, month) << endl;
+	// Dynamic array of objects ,with the size of count
+	Furniture *fur[count];
 
-	Other *t4 = new Other(123.1, 125421.123, "StavGalds", 983);
-	t4->printOrder();
 
-	delete t2, t3, t4;
+	 Other *pOther ;
+	 SoftFur *pSoft;
 
+
+	// Stat of for-loop ,for object creation
+	for (i = 0; i < count; i++) {
+
+		cout << endl << i +
+			1 << ". Furniture registry : "<<endl<<" 1. Soft Furniture "<< endl <<" 2. Other Furniture"<< endl<< "Input : ";
+		do {
+			cin >> type;
+			if (type != 1 && type != 2) {
+				cout << "Input is not correct.";
+			}
+		}
+		while (type != 1 && type != 2);
+
+		cout << endl <<"1. Manual atribute input";
+		cout <<endl << "2. Use default atributes"<<endl;
+		do {
+			cin >> value;
+			flushall();
+			switch (type) {
+			case 1:
+
+				// Non-overloaded constructor
+				if (value == 2) {
+					fur[i] = new SoftFur;
+					pSoft->printOrder();
+					pSoft->credit(price, month);
+					pSoft->combData();
+
+				}
+				// Pasa parametri
+				else if (value == 1) {
+
+
+					SoftFur *pSoft = dynamic_cast<SoftFur*>(fur[i]);
+					cout << "1. Furniture" << endl;
+
+					cout << "Ievadiet mebeles nosaukumu: ";
+					name = inputNonEmptyString();
+					pSoft->setFurnitureName(name);
+
+					cout << "Ievadiet mebeles krasu: ";
+					color = inputNonEmptyString();
+					pSoft->setFurnitureColor(color);
+
+					cout << "Ievadiet mebeles izveidosanas datumu (dd/mm/yyyy) ";
+					date = inputNonEmptyString();
+					pSoft->setDate(date);
+
+					cout << "Ievadiet mebeles serialo numuru (****-****)";
+					serial = inputNonEmptyString();
+					pSoft->setSerial(serial);
+					do {
+						cout << "Ievadiet mebles cenu: ";
+						cin >> price;
+						if (price <= 0)
+							cout << "Summai jabut lielakai par 0!\n";
+					}
+					while (price <= 0);
+					pSoft->setFurniturePrice(price);
+
+					fur[i] = new SoftFur(serial, date, name, color, price);
+					pSoft->printOrder();
+					pSoft->credit(price, month);
+					pSoft->combData();
+					fur[i] = new SoftFur();
+				}
+				break;
+
+			case 2:
+				if (value == 2) {
+					fur[i] = new Other;
+					pOther->printOrder();
+					cout << "Kredits :" << pOther->credit(price, month);
+
+				}
+				else if (value == 1) {
+					cout << "1. furniture" << endl;
+					fur[i] = new Other;
+					Other *pOther = dynamic_cast<Other*>(fur[i]);
+					do {
+
+						cout << "Ievadiet mebeles svaru (KG): ";
+						cin >> weight;
+						pOther->setOtherWeight(weight);
+
+						if (weight <= 0)
+							cout << "Svars nevar but mazaks par nulli";
+					}
+
+					while (weight <= 0);
+					do {
+						cout << "Ievadiet mebeles izmerus (CM^2): ";
+						cin >> size;
+						pOther->setOtherSize(size);
+						if (size <= 0)
+							cout << "Izmers nevar but mazaks par nulli";
+					}
+					while (size <= 0);
+
+					cout << "Ievadiet mebeles nosaukumu";
+					name = inputNonEmptyString();
+					pOther->setFurnitureName(name);
+
+					do {
+						cout << "Ievadiet ievadiet mebeles cenu : ";
+						cin >> price;
+						pOther->setFurniturePrice(price);
+						if (price <= 0)
+							cout << "Cena nevar but mazaka par nulli";
+					}
+					while (price <= 0);
+
+					fur[i] = new Other(weight, size, name, price);
+					pOther->printOrder();
+				}
+				break;
+
+			default:
+				cout <<endl<< "Wrong input (1 or 2)"<<endl;
+			}
+		}
+		while (value != 1 && value != 2);
+
+	}
+
+	getch();
 	return 0;
 }
